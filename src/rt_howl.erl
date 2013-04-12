@@ -4,8 +4,13 @@
 -export([node_endpoing/1,
          call/2]).
 
--export([listen/2,
-         leave/2,
+-export([ws_open/1,
+         ws_close/1,
+         ws_auth/3,
+         ws_join/2,
+         ws_leave/2,
+         ws_messages/1,
+         wait_until_ws_message/2,
          listeners/2,
          url/1]).
 
@@ -25,15 +30,38 @@ call(Node, Msg) ->
     gen_tcp:close(Socket),
     Res.
 
-listen(Node, Channel) ->
-    rpc:call(Node, howl, listen, [Channel]).
-
-leave(Node, Channel) ->
-    rpc:call(Node, howl, leave, [Channel]).
-
 listeners(Node, Channel) ->
     rpc:call(Node, howl, listeners, [Channel]).
 
 url(Node) ->
     {ok, Port} = rpc:call(Node, application, get_env, [howl, http_port]),
     io_lib:format("ws://127.0.0.1:~p/howl", [Port]).
+
+
+ws_open(Node) ->
+    howl_test_ws_handler:connect(Node).
+
+ws_close(Node) ->
+    howl_test_ws_handler:close(Node).
+
+ws_auth(WS, User, Pass) ->
+    howl_test_ws_handler:auth(WS, User, Pass),
+    wait_until_ws_message(WS, [{<<"ok">>, <<"authenticated">>}]).
+
+ws_join(WS, Channel) ->
+    howl_test_ws_handler:join(WS, Channel),
+    wait_until_ws_message(WS, [{<<"ok">>, <<"channel joined">>}]).
+
+ws_leave(WS, Channel) ->
+    howl_test_ws_handler:leave(WS, Channel).
+
+ws_messages(WS) ->
+    howl_test_ws_handler:messages(WS).
+
+wait_until_ws_message(Ws, Msg) ->
+    lager:info("[ws: ~p] Waiting for: ~p", [Ws, Msg]),
+    F = fun(_) ->
+                {ok, Msgs} = ws_messages(Ws),
+                lists:member(Msg, Msgs)
+        end,
+    rt:wait_until(Ws, F).

@@ -43,16 +43,16 @@ confirm() ->
 
     lager:info("Setting up some listerners"),
 
-    {ok, WS} = howl_test_ws_handler:connect(Node1),
-    howl_test_ws_handler:auth(WS, ?USER, ?PASS),
-    howl_test_ws_handler:join(WS, ?CHANNEL1),
-
-    timer:sleep(1000),
+    %% Join one websocket client to the channel
+    {ok, WS} = rt_howl:ws_open(Node1),
+    rt_howl:ws_auth(WS, ?USER, ?PASS),
+    rt_howl:ws_join(WS, ?CHANNEL1),
 
     {ok, [_]} = rt_howl:listeners(Node1, ?CHANNEL1),
 
 
     lager:info("joining Node 2 to the cluster... It takes two to make a thing go right"),
+
     rt:join(Node2, Node1),
     wait_and_validate([Node1, Node2]),
 
@@ -67,11 +67,9 @@ confirm() ->
 
     lager:info("creating a second websocket client on node 4 so the channel exists to the end "),
 
-    {ok, WS4} = howl_test_ws_handler:connect(Node4),
-    howl_test_ws_handler:auth(WS4, ?USER, ?PASS),
-    howl_test_ws_handler:join(WS4, ?CHANNEL1),
-
-    timer:sleep(1000),
+    {ok, WS4} = rt_howl:ws_open(Node4),
+    rt_howl:ws_auth(WS4, ?USER, ?PASS),
+    rt_howl:ws_join(WS4, ?CHANNEL1),
 
     {ok, [_, _]} = rt_howl:listeners(Node1, ?CHANNEL1),
 
