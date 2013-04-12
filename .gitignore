@@ -9,5 +9,6 @@ out
 erl_crash.dump
 *~
 #*#
+.#*
 doc/
 !doc/overview.edoc
