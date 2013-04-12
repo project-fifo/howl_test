@@ -37,7 +37,6 @@ url(Node) ->
     {ok, Port} = rpc:call(Node, application, get_env, [howl, http_port]),
     io_lib:format("ws://127.0.0.1:~p/howl", [Port]).
 
-
 ws_open(Node) ->
     howl_test_ws_handler:connect(Node).
 

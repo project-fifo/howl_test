@@ -24,9 +24,10 @@
                 messages = []}).
 
 connect(Node) ->
-    websocket_client:start_link(binary_to_list(iolist_to_binary(rt_howl:url(Node))), %this is stupid!
+    Endpoint = binary_to_list(iolist_to_binary(rt_howl:url(Node))), %this is stupid!
+    lager:info("[~p] Connecting to websocket endpoint: ~s", [Node, Endpoint]),
+    websocket_client:start_link(Endpoint,
                                 ?MODULE, [Node]).
-
 
 auth(Pid, User, Pass) ->
     Pid ! {auth, User, Pass}.
@@ -83,7 +84,6 @@ websocket_info(close, _ConnState, State) ->
 
 websocket_info(start, _ConnState, State) ->
     {ok, State}.
-
 
 websocket_terminate({remote,closed}, _ConnState, _State) ->
     lager:debug("Websocket closed from remote end."),
