@@ -9,7 +9,8 @@
          join/2,
          leave/2,
          messages/1,
-         close/1
+         close/1,
+         clear/1
         ]).
 
 -export([
@@ -41,6 +42,9 @@ leave(Pid, Channel) ->
 close(Pid) ->
     Pid ! close.
 
+clear(Pid) ->
+    Pid ! clear.
+
 messages(Pid) ->
     Ref = erlang:make_ref(),
     Pid ! {messages, self(), Ref},
@@ -68,10 +72,12 @@ websocket_info({auth, User, Pass}, _ConnState, State) ->
                  [{<<"user">>, User},
                   {<<"pass">>, Pass}]}], State);
 
-
 websocket_info({messages, Pid, Ref}, _ConnState, State) ->
     Pid ! {messages, Ref, State#state.messages},
     {ok, State};
+
+websocket_info(clear, _ConnState, State) ->
+    {ok, State#state{messages = []}};
 
 websocket_info({join, Channel}, _ConnState, State) ->
     reply_json([{<<"join">>, Channel}], State);
