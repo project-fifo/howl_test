@@ -40,7 +40,6 @@ call(Node, Msg) ->
     gen_tcp:close(Socket),
     Res.
 
-
 send(Node, Channel, Msg) ->
     call(Node, {msg, Channel, Msg}).
 
