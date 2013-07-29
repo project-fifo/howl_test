@@ -69,6 +69,7 @@ confirm() ->
     ?assertEqual(ok, rt:wait_until_all_members(Nodes)),
     ?assertEqual(ok, wait_until_ring_converged(Nodes)),
 
+    timer:sleep(1000),
     %% Ensure node has rejoined and is no longer down
     lager:info("Ensure ~p has rejoined and is no longer down", [Node1]),
     [?assertEqual(valid, status_of_according_to(Node1, Node)) || Node <- Nodes],
