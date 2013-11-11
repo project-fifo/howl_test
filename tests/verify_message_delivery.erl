@@ -43,6 +43,7 @@ test_delivery(Node, WSs) ->
     lager:info("Testig delivery form node ~p.", [Node]),
     rt_howl:send(Node, ?C1, ?MSG1),
     [rt_howl:wait_until_ws_message(Ws) || Ws <- WSs],
+    timer:sleep(1000),
     [?assertEqual(mk_reply(?C1, ?MSG1), rt_howl:ws_messages(Ws)) || Ws <- WSs],
     [rt_howl:ws_clear(Ws) || Ws <- WSs].
 
